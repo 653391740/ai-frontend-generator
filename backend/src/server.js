@@ -46,13 +46,22 @@ app.post('/api/generate', async (req, res) => {
     ? `${prompt} (target platform: ${platform})`
     : prompt;
 
+  const agentMessages = {
+    requirementAgent: { running: 'Analyzing requirements…', complete: 'Requirements analyzed' },
+    structureAgent:   { running: 'Designing page structure…', complete: 'Structure designed' },
+    componentAgent:   { running: 'Planning components…', complete: 'Components planned' },
+    codeAgent:        { running: 'Generating Vue code…', complete: 'Code generated' },
+    validationAgent:  { running: 'Validating & optimizing…', complete: 'Validation complete' },
+  };
+
   try {
     const result = await orchestrator.run(userInput, ({ agent, status, data, progress }) => {
+      const message = agentMessages[agent]?.[status] ?? `${agent}: ${status}`;
       send({
         type: 'progress',
         agent,
         status,
-        message: `${agent}: ${status}`,
+        message,
         progress,
         data,
       });
